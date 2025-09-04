@@ -1,110 +1,233 @@
-* { font-family: Verdana; font-size: 96%; margin:0; padding:0;}
-label { display: block; margin-top: 10px; }
-label.error { float: none; color: red; margin: 0 .5em 0 0; vertical-align: top; font-size: 10px }
-p { clear: both; }
-.submit { margin-top: 1em; }
-em { font-weight: bold; padding-right: 1em; vertical-align: top; }
-body{
-	background:url(images/bg.png) repeat;
+* { 
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0; 
+    padding: 0;
 }
 
-#main{
-	width:500px;
-	margin:auto;
+body {
+    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url(imagens/Ramon-1.jpeg) repeat;
+    padding: 40px 0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-#geral{
-	width:500px;
-	background:#FFFFFF;
-	float:left;
+#main {
+    width: 500px;
+    margin: auto;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    overflow: hidden;
 }
 
-#header{
-	width:500px;
-	height:81px;
-	background:url(images/header.jpg);
-	float:left;
+#geral {
+    width: 500px;
+    background: #FFFFFF;
+    float: left;
 }
 
-.recados {
-	float: left;
-	width: 480px;
-	margin-bottom: 10px;
-	border-bottom-width: 1px;
-	border-bottom-style: solid;
-	border-bottom-color: #0066FF;
-	background-color: #EAF9FF;
-	padding: 10px;
-	list-style-type: none;
+#header {
+    width: 500px;
+    height: 120px;
+    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(imagens/images.jfif) center/cover;
+    float: left;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 20px;
 }
 
 #header h1 {
-	font-family: "Trebuchet MS", Tahoma, Verdana, "Agency FB", Arial;
-	font-size: 18px;
-	font-style: normal;
-	font-weight: bold;
-	color: #990000;
-	margin-top: 20px;
-	margin-left: 5px;
+    font-family: "Trebuchet MS", Tahoma, Verdana, "Agency FB", Arial;
+    font-size: 26px;
+    font-weight: 800;
+    color: #FFFFFF;
+    margin-bottom: 5px;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
 }
+
 #header p {
-	font-size: 13px;
-	font-style: normal;
-	color: #999999;
-	margin-left: 5px;
+    font-size: 14px;
+    color: #F0F0F0;
+    margin: 0;
 }
+
 #header a {
-	font-weight: bold;
-	color: #333333;
+    font-weight: bold;
+    color: #FFFFFF;
 }
+
+.recados {
+    float: left;
+    width: 480px;
+    margin: 15px 10px;
+    border-left: 4px solid #0066FF;
+    background-color: #F8FCFF;
+    padding: 20px;
+    list-style-type: none;
+    border-radius: 0 8px 8px 0;
+    box-shadow: 0 3px 10px rgba(0, 102, 255, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.recados:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 102, 255, 0.15);
+}
+
 #formulario_mural {
-	text-align: center;
-	float: left;
-	width: 480px;
-	margin-bottom: 10px;
-	background:#F5F5F5;
-	padding:10px;
+    text-align: center;
+    float: left;
+    width: 480px;
+    margin: 0 10px 20px;
+    background: linear-gradient(to right, #00a1c9, #0088b0);
+    padding: 25px 20px;
+    border-radius: 8px;
 }
-#mural input{
-	width: 150px;
-	padding-top: 7px;
-	padding-bottom: 7px;
-	margin-top: 3px;
-	border: 1px solid #666666;
+
+#mural label {
+    display: block;
+    text-align: left;
+    color: #FFFFFF;
+    font-weight: 500;
+    margin-top: 15px;
+    margin-bottom: 8px;
 }
+
+#mural input {
+    width: 100%;
+    padding: 12px 15px;
+    margin-top: 5px;
+    border: none;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.9);
+    font-size: 15px;
+    transition: all 0.3s ease;
+}
+
+#mural input:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5);
+    background: #FFFFFF;
+}
+
 #mural textarea {
-	padding: 5px;
-	height: 90px;
-	width: 140px;
-	border: 1px solid #666666;
+    padding: 12px 15px;
+    height: 110px;
+    width: 100%;
+    border: none;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.9);
+    font-size: 15px;
+    resize: vertical;
+    transition: all 0.3s ease;
 }
+
+#mural textarea:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5);
+    background: #FFFFFF;
+}
+
 .btn {
-	padding: 7px;
-	width: 100px;
-	border: 1px solid #333333;
-	cursor:pointer;
+    padding: 12px 25px;
+    width: auto;
+    min-width: 140px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    background: #FFFFFF;
+    color: #0088b0;
+    font-weight: 600;
+    margin-top: 20px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.btn:hover{
-	background:#333333;
-	color:#999999;
+.btn:hover {
+    background: #006688;
+    color: #FFFFFF;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
-#footer{
-	width:500px;
-	height:30px;
-	float:left;
-	display:block;
-	background:#000000;
-	line-height:30px;
+label.error {
+    display: block;
+    color: #FFEB3B;
+    margin: 5px 0 0;
+    font-size: 12px;
+    font-weight: 500;
 }
 
-#footer p{
-	color:#666666;
-	padding-left:10px;
+p {
+    clear: both;
+    margin: 15px 0;
 }
 
-#footer a{
-	color:#CCCCCC;
-	text-decoration:none;
+.submit {
+    margin-top: 1em;
+}
+
+em {
+    font-weight: bold;
+    padding-right: 1em;
+    vertical-align: top;
+}
+
+#footer {
+    width: 500px;
+    height: 40px;
+    float: left;
+    display: flex;
+    align-items: center;
+    background: linear-gradient(to right, #0088b0, #007095);
+    padding: 0 20px;
+}
+
+#footer p {
+    color: #FFFFFF;
+    margin: 0;
+    font-size: 13px;
+}
+
+#footer a {
+    color: #CCEEFF;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+#footer a:hover {
+    color: #FFFFFF;
+    text-decoration: underline;
+}
+
+/* Efeitos de transição suave para todos os elementos interativos */
+input, textarea, button, .btn {
+    transition: all 0.3s ease;
+}
+
+/* Melhoria de responsividade */
+@media (max-width: 520px) {
+    #main, #geral, #header, #footer {
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    .recados, #formulario_mural {
+        width: calc(100% - 20px);
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+    
+    #header {
+        height: auto;
+        min-height: 100px;
+        padding: 15px;
+    }
+    
+    #header h1 {
+        font-size: 22px;
+    }
 }

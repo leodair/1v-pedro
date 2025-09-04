@@ -59,9 +59,9 @@ $(document).ready(function() {
 </div>
 
 <?php
-$seleciona = mysqli_query($conexao, "SELECT * FROM recados ORDER BY id DESC");
+$seleciona = mysqli_query($conexao, "SELECT * FROM trabalho_terceiro ORDER BY id DESC");
 while($res = mysqli_fetch_assoc($seleciona)){
-    echo '<ul class="recados">';
+    echo '<ul class="trabalho_terceiro">';
     echo '<li><strong>ID:</strong> ' . $res['id'] . '</li>';
     echo '<li><strong>Nome:</strong> ' . htmlspecialchars($res['nome']) . '</li>';
     echo '<li><strong>Email:</strong> ' . htmlspecialchars($res['email']) . '</li>';
