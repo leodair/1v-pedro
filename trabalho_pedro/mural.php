@@ -1,6 +1,7 @@
 <?php
 include "conexao.php";
 
+// Inserir novo recado
 if(isset($_POST['cadastra'])){
     $nome  = mysqli_real_escape_string($conexao, $_POST['nome']);
     $email = mysqli_real_escape_string($conexao, $_POST['email']);
@@ -12,6 +13,13 @@ if(isset($_POST['cadastra'])){
     exit;
 }
 
+// Excluir recado direto no mural
+if(isset($_POST['acao']) && $_POST['acao'] == 'excluir'){
+    $id = intval($_POST['id']);
+    mysqli_query($conexao, "DELETE FROM trabalho_terceiro WHERE id=$id") or die("Erro ao deletar: " . mysqli_error($conexao));
+    header("Location: mural.php");
+    exit;
+}
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -19,6 +27,8 @@ if(isset($_POST['cadastra'])){
 <meta charset="utf-8"/>
 <title>Mural de pedidos</title>
 <link rel="stylesheet" href="leodair.css"/>
+
+
 
 <script src="scripts/jquery.js"></script>
 <script src="scripts/jquery.validate.js"></script>
@@ -38,7 +48,7 @@ $(document).ready(function() {
     });
 });
 </script>
-
+</head>
 <body>
 <div id="main">
 <div id="geral">
@@ -61,18 +71,31 @@ $(document).ready(function() {
 <?php
 $seleciona = mysqli_query($conexao, "SELECT * FROM trabalho_terceiro ORDER BY id DESC");
 while($res = mysqli_fetch_assoc($seleciona)){
-    echo '<ul class="trabalho_terceiro">';
+    echo '<ul class="recados">';
     echo '<li><strong>ID:</strong> ' . $res['id'] . '</li>';
     echo '<li><strong>Nome:</strong> ' . htmlspecialchars($res['nome']) . '</li>';
     echo '<li><strong>Email:</strong> ' . htmlspecialchars($res['email']) . '</li>';
     echo '<li><strong>Mensagem:</strong> ' . nl2br(htmlspecialchars($res['mensagem'])) . '</li>';
+
+    // Botões de ação
+    echo '<li>
+            <form method="post" action="mural.php" style="display:inline;">
+                <input type="hidden" name="id" value="' . $res['id'] . '"/>
+                <input type="hidden" name="acao" value="excluir"/>
+                <button type="submit" onclick="return confirm(\'Tem certeza que deseja excluir este recado?\')" class="btn-excluir">
+                    Excluir
+                </button>
+            </form>
+
+            <a href="moderar.php?acao=editar&id=' . $res['id'] . '" class="btn-editar">Editar</a>
+          </li>';
+
     echo '</ul>';
 }
 ?>
-<div id="footer">
-</div>
+<div id="footer"></div>
 </div>
 </div>
 </body>
 </html>
-</head>
+

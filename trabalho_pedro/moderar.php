@@ -8,16 +8,19 @@ if(isset($_POST['atualiza'])){
     $email      = mysqli_real_escape_string($conexao, $_POST['email']);
     $msg        = mysqli_real_escape_string($conexao, $_POST['msg']);
 
-    $sql = "UPDATE recados SET nome='$nome', email='$email', mensagem='$msg' WHERE id=$idatualiza";
+    $sql = "UPDATE trabalho_terceiro SET nome='$nome', email='$email', mensagem='$msg' WHERE id=$idatualiza";
     mysqli_query($conexao, $sql) or die("Erro ao atualizar: " . mysqli_error($conexao));
     header("Location: moderar.php");
     exit;
 }
 
 // Excluir recado
-if(isset($_GET['acao']) && $_GET['acao'] == 'excluir'){
-    $id = intval($_GET['id']);
-    mysqli_query($conexao, "DELETE FROM recados WHERE id=$id") or die("Erro ao deletar: " . mysqli_error($conexao));
+if(
+   (isset($_GET['acao']) && $_GET['acao'] == 'excluir') || 
+   (isset($_POST['acao']) && $_POST['acao'] == 'excluir')
+){
+    $id = isset($_POST['id']) ? intval($_POST['id']) : intval($_GET['id']);
+    mysqli_query($conexao, "DELETE FROM trabalho_terceiro WHERE id=$id") or die("Erro ao deletar: " . mysqli_error($conexao));
     header("Location: moderar.php");
     exit;
 }
@@ -26,7 +29,7 @@ if(isset($_GET['acao']) && $_GET['acao'] == 'excluir'){
 $editar_id = isset($_GET['acao']) && $_GET['acao'] == 'editar' ? intval($_GET['id']) : 0;
 $recado_editar = null;
 if($editar_id){
-    $res = mysqli_query($conexao, "SELECT * FROM recados WHERE id=$editar_id");
+    $res = mysqli_query($conexao, "SELECT * FROM trabalho_terceiro WHERE id=$editar_id");
     $recado_editar = mysqli_fetch_assoc($res);
 }
 ?>
@@ -60,25 +63,32 @@ if($editar_id){
 <?php endif; ?>
 
 <?php
-$seleciona = mysqli_query($conexao, "SELECT * FROM recados ORDER BY id DESC");
+$seleciona = mysqli_query($conexao, "SELECT * FROM trabalho_terceiro ORDER BY id DESC");
 if(mysqli_num_rows($seleciona) <= 0){
     echo "<p>Nenhum pedido no mural!</p>";
 }else{
     while($res = mysqli_fetch_assoc($seleciona)){
         echo '<ul class="recados">';
-        echo '<li><strong>ID:</strong> ' . $res['id'] . ' | 
-              <a href="moderar.php?acao=excluir&id=' . $res['id'] . '">Remover</a> | 
-              <a href="moderar.php?acao=editar&id=' . $res['id'] . '">Modificar</a></li>';
+        echo '<li><strong>ID:</strong> ' . $res['id'] . '</li>';
         echo '<li><strong>Nome:</strong> ' . htmlspecialchars($res['nome']) . '</li>';
         echo '<li><strong>Email:</strong> ' . htmlspecialchars($res['email']) . '</li>';
         echo '<li><strong>Mensagem:</strong> ' . nl2br(htmlspecialchars($res['mensagem'])) . '</li>';
+        echo '<li>
+                <form method="post" action="moderar.php" style="display:inline;">
+                    <input type="hidden" name="id" value="' . $res['id'] . '"/>
+                    <input type="hidden" name="acao" value="excluir"/>
+                    <button type="submit" onclick="return confirm(\'Tem certeza que deseja excluir este recado?\')" class="btn-excluir">
+                        Excluir
+                    </button>
+                </form>
+                <a href="moderar.php?acao=editar&id=' . $res['id'] . '" class="btn-editar">Editar</a>
+              </li>';
         echo '</ul>';
     }
 }
 ?>
 
-<div id="footer">
-</div>
+<div id="footer"></div>
 </div>
 </div>
 </body>
