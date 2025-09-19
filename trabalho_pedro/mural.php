@@ -1,35 +1,87 @@
 <?php
-include "conexao.php";
-
-// Inserir novo recado
+include "conexao.php"; // Aqui já tem conexão MySQL + variáveis do Cloudinary ($cloud_name, $api_key, $api_secret)
+// ==========================
+// Inserir novo produto
+// ==========================
 if(isset($_POST['cadastra'])){
-    $nome  = mysqli_real_escape_string($conexao, $_POST['nome']);
-    $email = mysqli_real_escape_string($conexao, $_POST['email']);
-    $msg   = mysqli_real_escape_string($conexao, $_POST['msg']);
+    // Pegando os dados do formulário (tratamento contra SQL Injection)
+    $nome = mysqli_real_escape_string($conexao, $_POST['nome']);
+    $descricao = mysqli_real_escape_string($conexao, $_POST['descricao']);
+    $preco = floatval($_POST['preco']);
+    $imagem_url = ""; // Inicializa a variável que vai guardar a URL da imagem
+    // --------------------------
+    // Upload da imagem para Cloudinary
+    // --------------------------
+    if(isset($_FILES['imagem']) && $_FILES['imagem']['error'] == 0){
+        $cfile = new CURLFile($_FILES['imagem']['tmp_name'], $_FILES['imagem']['type'], $_FILES['imagem']['name']);
 
-    $sql = "INSERT INTO trabalho_terceiro (nome, email, mensagem) VALUES ('$nome', '$email', '$msg')";
-    mysqli_query($conexao, $sql) or die("Erro ao inserir dados: " . mysqli_error($conexao));
+        $timestamp = time();
+        $string_to_sign = "timestamp=$timestamp$api_secret";
+        $signature = sha1($string_to_sign);
+
+        $data = [
+            'file' => $cfile,
+            'timestamp' => $timestamp,
+            'api_key' => $api_key,
+            'signature' => $signature
+        ];
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, "https://api.cloudinary.com/v1_1/$cloud_name/image/upload");
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $response = curl_exec($ch);
+        if($response === false){ die("Erro no cURL: " . curl_error($ch)); }
+        curl_close($ch);
+
+        $result = json_decode($response, true);
+        if(isset($result['secure_url'])){
+            $imagem_url = $result['secure_url'];
+        } else {
+            die("Erro no upload: " . print_r($result, true));
+        }
+    }
+
+    // ==========================
+    // Inserindo no banco de dados
+    // ==========================
+    if($imagem_url != ""){
+        $sql = "INSERT INTO trabalho_terceiro (nome, descricao, preco, imagem_url) VALUES ('$nome', '$descricao', $preco, '$imagem_url')";
+        mysqli_query($conexao, $sql) or die("Erro ao inserir: " . mysqli_error($conexao));
+    }
+
+    // ==========================
+    // REDIRECIONAMENTO
+    // ==========================
     header("Location: mural.php");
     exit;
 }
 
-// Excluir recado direto no mural
-if(isset($_POST['acao']) && $_POST['acao'] == 'excluir'){
-    $id = intval($_POST['id']);
-    mysqli_query($conexao, "DELETE FROM trabalho_terceiro WHERE id=$id") or die("Erro ao deletar: " . mysqli_error($conexao));
-    header("Location: mural.php");
-    exit;
-}
+/* 
+==================================================
+COMPARAÇÃO COM O CÓDIGO DE "ANTIGOxCLOUDINARY"
+==================================================
+- Tabela usada: recados (nome, email, mensagem)
+- Campos do formulário: nome, email, msg
+- Não tem upload de imagem, nem Cloudinary
+- Inserção SQL: INSERT INTO recados (nome, email, mensagem)
+- Validação adicional no front-end usando jQuery Validate
+- Exibição: <ul> ao invés de <div>, apenas texto, sem preço ou imagem
+- Código mais simples e voltado a mensagens
+==================================================
+*/
 ?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
 <meta charset="utf-8"/>
-<title>Mural de pedidos</title>
+<title>Mural de Produtos</title>
 <link rel="stylesheet" href="leodair.css"/>
 
-
-
+<!--
+COMPARAÇÃO: No código ANTIGO/pedidos havia jQuery + jQuery Validate
 <script src="scripts/jquery.js"></script>
 <script src="scripts/jquery.validate.js"></script>
 <script>
@@ -48,54 +100,67 @@ $(document).ready(function() {
     });
 });
 </script>
+-->
 </head>
 <body>
 <div id="main">
-<div id="geral">
-<div id="header">
-    <h1>Mural de pedidos</h1>
-</div>
+    <div id="geral">
+        <div id="header">
+            <h1>Mural de Produtos</h1>
+        </div>
 
-<div id="formulario_mural">
-<form id="mural" method="post">
-    <label>Nome:</label>
-    <input type="text" name="nome"/><br/>
-    <label>Email:</label>
-    <input type="text" name="email"/><br/>
-    <label>Mensagem:</label>
-    <textarea name="msg"></textarea><br/>
-    <input type="submit" value="Publicar no Mural" name="cadastra" class="btn"/>
-</form>
-</div>
+        <!-- ==========================
+        FORMULÁRIO
+        ========================== -->
+        <div id="formulario_mural">
+            <form id="mural" method="post" enctype="multipart/form-data">
+                <label>Nome do produto:</label>
+                <input type="text" name="nome" required/>
 
-<?php
-$seleciona = mysqli_query($conexao, "SELECT * FROM trabalho_terceiro ORDER BY id DESC");
-while($res = mysqli_fetch_assoc($seleciona)){
-    echo '<ul class="recados">';
-    echo '<li><strong>ID:</strong> ' . $res['id'] . '</li>';
-    echo '<li><strong>Nome:</strong> ' . htmlspecialchars($res['nome']) . '</li>';
-    echo '<li><strong>Email:</strong> ' . htmlspecialchars($res['email']) . '</li>';
-    echo '<li><strong>Mensagem:</strong> ' . nl2br(htmlspecialchars($res['mensagem'])) . '</li>';
+                <label>Descrição:</label>
+                <textarea name="descricao" required></textarea>
 
-    // Botões de ação
-    echo '<li>
-            <form method="post" action="mural.php" style="display:inline;">
-                <input type="hidden" name="id" value="' . $res['id'] . '"/>
-                <input type="hidden" name="acao" value="excluir"/>
-                <button type="submit" onclick="return confirm(\'Tem certeza que deseja excluir este recado?\')" class="btn-excluir">
-                    Excluir
-                </button>
+                <label>Preço:</label>
+                <input type="number" step="0.01" name="preco" required/>
+
+                <label>Imagem:</label>
+                <input type="file" name="imagem" accept="image/*" required/>
+
+                <input type="submit" value="Cadastrar Produto" name="cadastra" class="btn"/>
             </form>
+        </div>
 
-            <a href="moderar.php?acao=editar&id=' . $res['id'] . '" class="btn-editar">Editar</a>
-          </li>';
+        <!-- ==========================
+        LISTA DE PRODUTOS
+        ========================== -->
+        <div class="produtos-container">
+        <?php
+        $seleciona = mysqli_query($conexao, "SELECT * FROM trabalho_terceiro ORDER BY id DESC");
+        while($res = mysqli_fetch_assoc($seleciona)){
+            echo '<div class="produto">';
+            echo '<p><strong>ID:</strong> ' . $res['id'] . '</p>';
+            echo '<p><strong>Nome:</strong> ' . htmlspecialchars($res['nome']) . '</p>';
+            echo '<p><strong>Preço:</strong> R$ ' . number_format($res['preco'], 2, ',', '.') . '</p>';
+            echo '<p><strong>Descrição:</strong> ' . nl2br(htmlspecialchars($res['descricao'])) . '</p>';
+            echo '<img src="' . htmlspecialchars($res['imagem_url']) . '" alt="' . htmlspecialchars($res['nome']) . '">';
+            echo '</div>';
+        }
 
-    echo '</ul>';
-}
-?>
-<div id="footer"></div>
-</div>
+        /*
+        COMPARAÇÃO: Código antigo x cloudinary
+        - Exibe em <ul class="recados"> cada recado
+        - Mostra nome, email e mensagem
+        - Não há imagem, preço ou descrição longa
+        */
+
+        ?>
+        </div>
+
+        <div id="footer">
+            <p>DEUS ACIMA DE TUDO</p>
+            <!-- No código anterior, o footer estava vazio -->
+        </div>
+    </div>
 </div>
 </body>
-</html>
-
+</html>      
